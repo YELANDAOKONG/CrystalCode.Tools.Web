@@ -1,0 +1,11 @@
+{
+  "runner": "dotnet",
+  "assembly": "CrystalCode.Web.dll",
+  "types": [
+    "CrystalCode.Web.Tools.WebSearchTool",
+    "CrystalCode.Web.Tools.WebFetchTool"
+  ],
+  "catalogs": ["plan", "work"],
+  "approval": "always",
+  "timeoutSeconds": 120
+}

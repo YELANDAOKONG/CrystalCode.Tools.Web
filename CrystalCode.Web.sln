@@ -1,0 +1,21 @@
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CrystalCode.Web", "CrystalCode.Web\CrystalCode.Web.csproj", "{CC6B0FDE-04F4-400A-80D6-AC9C945267D5}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CrystalCode.Web.Tests", "CrystalCode.Web.Tests\CrystalCode.Web.Tests.csproj", "{7E4B2F0A-6C31-4D8E-9B5A-3F8D1C2E6A47}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{CC6B0FDE-04F4-400A-80D6-AC9C945267D5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CC6B0FDE-04F4-400A-80D6-AC9C945267D5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CC6B0FDE-04F4-400A-80D6-AC9C945267D5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CC6B0FDE-04F4-400A-80D6-AC9C945267D5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7E4B2F0A-6C31-4D8E-9B5A-3F8D1C2E6A47}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7E4B2F0A-6C31-4D8E-9B5A-3F8D1C2E6A47}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7E4B2F0A-6C31-4D8E-9B5A-3F8D1C2E6A47}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7E4B2F0A-6C31-4D8E-9B5A-3F8D1C2E6A47}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
