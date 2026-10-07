@@ -1,4 +1,4 @@
-# CrystalCode Web
+# Crystal Code Web
 
 **A Crystal Code external tool set that gives the agent live web search and page fetch.**
 
