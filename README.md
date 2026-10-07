@@ -59,10 +59,10 @@ This is a native dotnet tool set for [Crystal Code](https://github.com/YELANDAOK
 Publish the set and place the published files, including `tools.json`, in one directory under `~/.crystal/tools`:
 
 ```bash
-dotnet publish CrystalCode.Web/CrystalCode.Web.csproj -c Release -o ~/.crystal/tools/CrystalCode.Web
+dotnet publish CrystalCode.Web/CrystalCode.Web.csproj -c Release -o ~/.crystal/tools/web
 ```
 
-Restart the session, or run `/tools reload`, to load the set. A project set at `<workspace>/.crystal/tools/CrystalCode.Web/` replaces the home set for that workspace. The directory name is the set identity; keep it `CrystalCode.Web`.
+Restart the session, or run `/tools reload`, to load the set. A project set at `<workspace>/.crystal/tools/web/` replaces the home set for that workspace. The directory name is the set identity; this set installs as `web`.
 
 ## Build from source
 
