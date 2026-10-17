@@ -199,6 +199,20 @@ public sealed class WebSearchClientTests
     }
 
     [Fact]
+    public async Task ReportsInvalidJsonFromARestProvider()
+    {
+        var handler = new FakeHttpMessageHandler().Respond("not json");
+        var environment = TestEnvironment.From(
+            (SearchArguments.ProviderVariable, "tavily"),
+            ("TAVILY_API_KEY", "secret"));
+
+        var exception = await Assert.ThrowsAsync<WebToolException>(
+            () => SearchAsync(handler, """{"query":"crystal"}""", environment));
+
+        Assert.Equal("The search provider returned an invalid JSON response.", exception.Message);
+    }
+
+    [Fact]
     public async Task PostsToBochaWithABearerToken()
     {
         var handler = new FakeHttpMessageHandler().Respond(

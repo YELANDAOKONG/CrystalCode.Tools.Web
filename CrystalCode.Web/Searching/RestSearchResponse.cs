@@ -4,6 +4,8 @@ namespace CrystalCode.Web.Searching;
 
 /// <summary>
 /// Reads a REST search response and normalizes its results for the model.
+/// Returns <see langword="false"/> when the body is not a JSON object; provider
+/// error payloads still count as readable and return <see langword="true"/>.
 /// </summary>
 internal static class RestSearchResponse
 {
@@ -27,7 +29,7 @@ internal static class RestSearchResponse
         catch (JsonException)
         {
             error = "The search provider returned an invalid JSON response.";
-            return true;
+            return false;
         }
 
         using (document)
@@ -36,7 +38,7 @@ internal static class RestSearchResponse
             if (root.ValueKind != JsonValueKind.Object)
             {
                 error = "The search provider returned an invalid JSON response.";
-                return true;
+                return false;
             }
 
             if (TryReadError(root, out error))

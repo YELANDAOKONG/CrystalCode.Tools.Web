@@ -60,7 +60,13 @@ internal static class WebSearchClient
             }
             else
             {
-                RestSearchResponse.TryRead(settings.Definition.Provider, body, out text, out error);
+                text = RestSearchResponse.TryRead(
+                    settings.Definition.Provider,
+                    body,
+                    out var restText,
+                    out error)
+                    ? restText
+                    : null;
             }
 
             if (error is not null)

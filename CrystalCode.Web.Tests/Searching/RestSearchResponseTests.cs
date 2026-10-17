@@ -177,10 +177,12 @@ public sealed class RestSearchResponseTests
         Assert.Equal("The search provider returned an error: invalid api key", error);
     }
 
-    [Fact]
-    public void RejectsInvalidJson()
+    [Theory]
+    [InlineData("not json")]
+    [InlineData("[]")]
+    public void RejectsBodiesThatAreNotJsonObjects(string body)
     {
-        Assert.True(RestSearchResponse.TryRead(SearchProvider.Tavily, "not json", out var text, out var error));
+        Assert.False(RestSearchResponse.TryRead(SearchProvider.Tavily, body, out var text, out var error));
         Assert.Null(text);
         Assert.Equal("The search provider returned an invalid JSON response.", error);
     }
