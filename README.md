@@ -10,7 +10,7 @@ This is a native dotnet tool set for [Crystal Code](https://github.com/YELANDAOK
 
 - **Search the live web.** `websearch` uses Parallel by default and can be switched to Exa, Tavily, Bocha, Perplexity, Jina, or Firecrawl. Parallel and Exa work anonymously; the other providers require an API key.
 - **Readable results.** Structured payloads are normalized into `Title`, `URL`, `Published`, and `Highlights` blocks; text from Exa and Jina passes through unchanged.
-- **Model-controlled volume.** `numResults` bounds every provider, `contextMaxCharacters` steers the Exa engine, and `maxCharacters` caps the returned text for every backend with a truncation note.
+- **Model-controlled volume.** `numResults` applies to Exa, Tavily, Bocha, Perplexity, Jina, and Firecrawl; Parallel uses its server-side default. `contextMaxCharacters` steers the Exa engine, and `maxCharacters` caps the returned text for every backend with a truncation note.
 - **Read specific pages.** `webfetch` performs one HTTP GET, rejects non-text content, retries a Cloudflare challenge once, and converts HTML to plain text or Markdown.
 - **Stay bounded.** Search responses are capped at 512 KiB and pages at 5 MiB. Search has a 25-second request timeout; `webfetch` honors its model-visible `timeout`. The host per-call timeout still applies.
 - **Keep credentials out of the wire format.** The manifest and tool arguments never carry secrets. Provider keys are read from the process environment and never written to output or logs. A missing required key fails before any network request.
@@ -28,9 +28,9 @@ This is a native dotnet tool set for [Crystal Code](https://github.com/YELANDAOK
 | Argument | Default | Meaning |
 | :--- | :--- | :--- |
 | `query` | Required | The web search query |
-| `numResults` | 8 (1–20) | Number of search results; providers may return fewer |
+| `numResults` | 8 (1–20) | Requested number of search results; providers may return fewer. Parallel uses its own default |
 | `contextMaxCharacters` | 10000 (1–50000) | Context size the search engine returns; currently honored by Exa |
-| `type` | `auto` | Search effort: `auto`, `fast`, or `deep`; honored by Exa, Tavily, and Perplexity |
+| `type` | `auto` | Search effort: `auto`, `fast`, or `deep`; Exa and Tavily honor all three, Perplexity honors `fast` only (`deep` uses standard web search), and other providers ignore it |
 | `livecrawl` | `fallback` | Exa live crawl: `fallback` or `preferred`; other providers ignore it |
 | `session_id` | None | Stable conversation id reused across related Parallel calls; other providers ignore it |
 | `model_name` | None | Exact model identifier for Parallel product analytics only; other providers ignore it |
