@@ -52,6 +52,24 @@ public sealed class WebSearchClientTests
     }
 
     [Fact]
+    public async Task FallsBackToRawProviderTextWhenStructuredParsingFails()
+    {
+        const string content = """{"results":[}""";
+        var body = JsonSerializer.Serialize(new
+        {
+            result = new
+            {
+                content = new[] { new { type = "text", text = content } }
+            }
+        });
+        var handler = new FakeHttpMessageHandler().Respond(body);
+
+        var text = await SearchAsync(handler, """{"query":"crystal"}""");
+
+        Assert.Equal(content, text);
+    }
+
+    [Fact]
     public async Task PostsToTheParallelEndpointByDefault()
     {
         var handler = new FakeHttpMessageHandler().Respond(FoundBody);

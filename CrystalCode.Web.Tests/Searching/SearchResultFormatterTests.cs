@@ -120,4 +120,14 @@ public sealed class SearchResultFormatterTests
             """,
             SearchResultFormatter.Format(text));
     }
+
+    [Fact]
+    public void FallsBackToTheRawPayloadWhenNoResultCanBeRead()
+    {
+        var text = """
+            {"results":[{"link":"https://example.com","snippet":"a new schema"}]}
+            """;
+
+        Assert.Equal(text, SearchResultFormatter.Format(text));
+    }
 }

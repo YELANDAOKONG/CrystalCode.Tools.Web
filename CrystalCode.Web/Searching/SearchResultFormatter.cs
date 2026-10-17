@@ -41,13 +41,21 @@ internal static class SearchResultFormatter
                 blocks.Add("Warnings:\n- " + string.Join("\n- ", warnings));
             }
 
+            var resultCount = results.GetArrayLength();
+            var formattedCount = 0;
             foreach (var result in results.EnumerateArray())
             {
                 var block = FormatResult(result);
                 if (block.Length > 0)
                 {
                     blocks.Add(block);
+                    formattedCount++;
                 }
+            }
+
+            if (resultCount > 0 && formattedCount == 0)
+            {
+                return text;
             }
 
             return string.Join("\n---\n", blocks);
