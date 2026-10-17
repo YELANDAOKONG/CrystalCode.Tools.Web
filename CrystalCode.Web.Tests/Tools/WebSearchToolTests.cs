@@ -1,5 +1,4 @@
 using System.Net;
-using System.Text.Json;
 
 using Crystal.Tools;
 
@@ -15,13 +14,14 @@ public sealed class WebSearchToolTests
     {
         var tool = new WebSearchTool();
 
+        var input = Assert.IsType<JsonToolInput>(tool.Definition.Input);
         Assert.Equal("websearch", tool.Definition.Name);
         Assert.NotNull(tool.Definition.Description);
-        using var schema = JsonDocument.Parse(tool.Definition.InputSchema.GetRawText());
-        Assert.False(schema.RootElement.GetProperty("additionalProperties").GetBoolean());
+        Assert.Equal(ToolInputKind.Json, input.Kind);
+        Assert.False(input.Schema.GetProperty("additionalProperties").GetBoolean());
         Assert.Equal(
             "query",
-            schema.RootElement.GetProperty("required").EnumerateArray().Single().GetString());
+            input.Schema.GetProperty("required").EnumerateArray().Single().GetString());
     }
 
     [Fact]
@@ -30,7 +30,8 @@ public sealed class WebSearchToolTests
         using var http = new HttpClient(new FakeHttpMessageHandler());
         var tool = new WebSearchTool(http, TestEnvironment.Empty);
 
-        var output = await tool.InvokeAsync(new ToolCall("1", "websearch", "{}"));
+        var output = await tool.InvokeAsync(
+            new ToolCall("1", "websearch", "{}", ToolInputKind.Json));
 
         Assert.Equal(ToolResultStatus.Failure, output.Status);
         Assert.Equal("Argument 'query' must be a non-empty string.", output.Text);
@@ -47,7 +48,7 @@ public sealed class WebSearchToolTests
         var tool = new WebSearchTool(http, TestEnvironment.Empty);
 
         var output = await tool.InvokeAsync(
-            new ToolCall("1", "websearch", """{"query":"crystal"}"""));
+            new ToolCall("1", "websearch", """{"query":"crystal"}""", ToolInputKind.Json));
 
         Assert.Equal(ToolResultStatus.Success, output.Status);
         Assert.Equal("found it", output.Text);
@@ -62,7 +63,7 @@ public sealed class WebSearchToolTests
         var tool = new WebSearchTool(http, TestEnvironment.Empty);
 
         var output = await tool.InvokeAsync(
-            new ToolCall("1", "websearch", """{"query":"crystal"}"""));
+            new ToolCall("1", "websearch", """{"query":"crystal"}""", ToolInputKind.Json));
 
         Assert.Equal(ToolResultStatus.Failure, output.Status);
         Assert.Equal("Parallel search failed with HTTP status 500.", output.Text);
@@ -78,7 +79,7 @@ public sealed class WebSearchToolTests
         var tool = new WebSearchTool(http, environment);
 
         var output = await tool.InvokeAsync(
-            new ToolCall("1", "websearch", """{"query":"crystal"}"""));
+            new ToolCall("1", "websearch", """{"query":"crystal"}""", ToolInputKind.Json));
 
         Assert.Equal(ToolResultStatus.Failure, output.Status);
         Assert.Equal("Environment variable TAVILY_API_KEY is required for Tavily search.", output.Text);

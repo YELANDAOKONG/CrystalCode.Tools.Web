@@ -92,9 +92,9 @@ public sealed class WebFetchTool : ITool
     private static ToolDefinition CreateTool()
     {
         using var document = JsonDocument.Parse(Schema);
-        return new ToolDefinition(
+        return ToolDefinition.Json(
             "webfetch",
-            document.RootElement.Clone(),
+            document.RootElement,
             "Fetch a public HTTP or HTTPS page and return Markdown (default), plain text, or raw HTML. Use this after websearch when you need to read a specific URL. maxCharacters truncates long pages.");
     }
 }

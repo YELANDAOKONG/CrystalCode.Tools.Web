@@ -1,5 +1,3 @@
-using System.Text.Json;
-
 using Crystal.Tools;
 
 using CrystalCode.Web.Tools;
@@ -13,13 +11,14 @@ public sealed class WebFetchToolTests
     {
         var tool = new WebFetchTool();
 
+        var input = Assert.IsType<JsonToolInput>(tool.Definition.Input);
         Assert.Equal("webfetch", tool.Definition.Name);
         Assert.NotNull(tool.Definition.Description);
-        using var schema = JsonDocument.Parse(tool.Definition.InputSchema.GetRawText());
-        Assert.False(schema.RootElement.GetProperty("additionalProperties").GetBoolean());
+        Assert.Equal(ToolInputKind.Json, input.Kind);
+        Assert.False(input.Schema.GetProperty("additionalProperties").GetBoolean());
         Assert.Equal(
             "url",
-            schema.RootElement.GetProperty("required").EnumerateArray().Single().GetString());
+            input.Schema.GetProperty("required").EnumerateArray().Single().GetString());
     }
 
     [Fact]
@@ -29,7 +28,7 @@ public sealed class WebFetchToolTests
         var tool = new WebFetchTool(http);
 
         var output = await tool.InvokeAsync(
-            new ToolCall("1", "webfetch", """{"url":"ftp://example.com"}"""));
+            new ToolCall("1", "webfetch", """{"url":"ftp://example.com"}""", ToolInputKind.Json));
 
         Assert.Equal(ToolResultStatus.Failure, output.Status);
         Assert.Equal("URL must use http:// or https://.", output.Text);
@@ -44,7 +43,7 @@ public sealed class WebFetchToolTests
         var tool = new WebFetchTool(http);
 
         var output = await tool.InvokeAsync(
-            new ToolCall("1", "webfetch", """{"url":"https://example.com/"}"""));
+            new ToolCall("1", "webfetch", """{"url":"https://example.com/"}""", ToolInputKind.Json));
 
         Assert.Equal(ToolResultStatus.Success, output.Status);
         Assert.Equal("# Title\n\nBody", output.Text);
@@ -59,7 +58,7 @@ public sealed class WebFetchToolTests
         var tool = new WebFetchTool(http);
 
         var output = await tool.InvokeAsync(
-            new ToolCall("1", "webfetch", """{"url":"https://example.com/"}"""));
+            new ToolCall("1", "webfetch", """{"url":"https://example.com/"}""", ToolInputKind.Json));
 
         Assert.Equal(ToolResultStatus.Failure, output.Status);
         Assert.Equal("Unsupported fetched image content type: image/png.", output.Text);

@@ -117,9 +117,9 @@ public sealed class WebSearchTool : ITool
     private static ToolDefinition CreateTool()
     {
         using var document = JsonDocument.Parse(Schema);
-        return new ToolDefinition(
+        return ToolDefinition.Json(
             "websearch",
-            document.RootElement.Clone(),
+            document.RootElement,
             "Search the live web through the provider selected by the operator (Parallel by default). Supported providers are Parallel, Exa, Tavily, Bocha, Perplexity, Jina, and Firecrawl; keyed providers fail fast when their key is not configured. Use this for current information and discovery. numResults, contextMaxCharacters, and maxCharacters control how much information comes back; support varies by provider.");
     }
 }
