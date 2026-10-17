@@ -9,6 +9,7 @@ This is a native dotnet tool set for [Crystal Code](https://github.com/YELANDAOK
 ## Features
 
 - **Search the live web.** `websearch` calls the hosted Parallel Search MCP by default and Exa when the operator selects it. Parallel works anonymously.
+- **Readable results.** Parallel's structured MCP payload is normalized into `Title`, `URL`, `Published`, and `Highlights` blocks; Exa's text passes through unchanged.
 - **Model-controlled volume.** `numResults` and `contextMaxCharacters` steer how much the Exa engine returns, and `maxCharacters` caps the returned text for either backend with a truncation note.
 - **Read specific pages.** `webfetch` performs one HTTP GET, rejects non-text content, retries a Cloudflare challenge once, and converts HTML to plain text or Markdown.
 - **Stay bounded.** Search responses are capped at 512 KiB and pages at 5 MiB. Search has a 25-second request timeout; `webfetch` honors its model-visible `timeout`. The host per-call timeout still applies.

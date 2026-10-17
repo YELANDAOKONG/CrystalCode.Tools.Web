@@ -54,9 +54,10 @@ internal static class WebSearchClient
                 throw new WebToolException(error);
             }
 
-            return WebText.Truncate(
-                string.IsNullOrWhiteSpace(text) ? NoResultsText : text,
-                request.MaxCharacters);
+            var result = string.IsNullOrWhiteSpace(text)
+                ? NoResultsText
+                : SearchResultFormatter.Format(text);
+            return WebText.Truncate(result, request.MaxCharacters);
         }
         catch (OperationCanceledException) when (!cancellationToken.IsCancellationRequested)
         {

@@ -1,4 +1,5 @@
 using System.Net;
+using System.Text.Json;
 
 using CrystalCode.Web.Searching;
 
@@ -20,6 +21,34 @@ public sealed class WebSearchClientTests
         var text = await SearchAsync(handler, """{"query":"crystal"}""");
 
         Assert.Equal("hello world", text);
+    }
+
+    [Fact]
+    public async Task FormatsStructuredProviderText()
+    {
+        var content = """
+            {"results":[{"url":"https://example.com","title":"Example","publish_date":null,"excerpts":["hello"]}]}
+            """;
+        var body = JsonSerializer.Serialize(new
+        {
+            result = new
+            {
+                content = new[] { new { type = "text", text = content } }
+            }
+        });
+        var handler = new FakeHttpMessageHandler().Respond(body);
+
+        var text = await SearchAsync(handler, """{"query":"crystal"}""");
+
+        Assert.Equal(
+            """
+            Title: Example
+            URL: https://example.com
+            Published: N/A
+            Highlights:
+            hello
+            """,
+            text);
     }
 
     [Fact]
