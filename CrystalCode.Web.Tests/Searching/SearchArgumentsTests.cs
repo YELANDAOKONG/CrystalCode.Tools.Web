@@ -52,6 +52,11 @@ public sealed class SearchArgumentsTests
     [InlineData("exa")]
     [InlineData("EXA")]
     [InlineData("parallel")]
+    [InlineData("tavily")]
+    [InlineData("bocha")]
+    [InlineData("perplexity")]
+    [InlineData("jina")]
+    [InlineData("firecrawl")]
     public void ReadsTheProviderFromTheEnvironment(string configured)
     {
         var environment = TestEnvironment.From((SearchArguments.ProviderVariable, configured));
@@ -70,7 +75,9 @@ public sealed class SearchArgumentsTests
 
         Assert.False(
             SearchArguments.TryRead("""{"query":"x"}""", environment, out _, out var error));
-        Assert.Equal("Provider must be 'exa' or 'parallel'.", error);
+        Assert.Equal(
+            "Provider must be 'parallel', 'exa', 'tavily', 'bocha', 'perplexity', 'jina', or 'firecrawl'.",
+            error);
     }
 
     [Fact]

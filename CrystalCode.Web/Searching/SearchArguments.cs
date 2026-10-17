@@ -104,7 +104,7 @@ internal static class SearchArguments
             return true;
         }
 
-        error = $"Provider must be '{SearchProviders.ExaName}' or '{SearchProviders.ParallelName}'.";
+        error = $"Provider must be {SearchProviders.DescribeChoices()}.";
         return false;
     }
 }

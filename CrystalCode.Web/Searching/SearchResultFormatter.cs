@@ -4,7 +4,7 @@ namespace CrystalCode.Web.Searching;
 
 /// <summary>
 /// Converts a provider's structured search text into readable result blocks.
-/// Plain text, such as the Exa payload, is returned unchanged.
+/// Plain text, such as the Exa or Jina payload, is returned unchanged.
 /// </summary>
 internal static class SearchResultFormatter
 {
@@ -34,28 +34,24 @@ internal static class SearchResultFormatter
                 return text;
             }
 
-            var blocks = new List<string>();
             var warnings = ReadWarnings(document.RootElement);
+            var resultCount = results.GetArrayLength();
+            var items = ReadResults(results);
+            var resultText = SearchResultRenderer.Render(items);
+            if (resultCount > 0 && resultText.Length == 0)
+            {
+                return text;
+            }
+
+            var blocks = new List<string>();
             if (warnings.Count > 0)
             {
                 blocks.Add("Warnings:\n- " + string.Join("\n- ", warnings));
             }
 
-            var resultCount = results.GetArrayLength();
-            var formattedCount = 0;
-            foreach (var result in results.EnumerateArray())
+            if (resultText.Length > 0)
             {
-                var block = FormatResult(result);
-                if (block.Length > 0)
-                {
-                    blocks.Add(block);
-                    formattedCount++;
-                }
-            }
-
-            if (resultCount > 0 && formattedCount == 0)
-            {
-                return text;
+                blocks.Add(resultText);
             }
 
             return string.Join("\n---\n", blocks);
@@ -70,33 +66,26 @@ internal static class SearchResultFormatter
             && results.ValueKind == JsonValueKind.Array;
     }
 
-    private static string FormatResult(JsonElement result)
+    private static List<SearchResultItem> ReadResults(JsonElement results)
     {
-        if (result.ValueKind != JsonValueKind.Object)
+        var items = new List<SearchResultItem>();
+        foreach (var result in results.EnumerateArray())
         {
-            return string.Empty;
+            if (result.ValueKind != JsonValueKind.Object || ReadString(result, "url") is not string url)
+            {
+                continue;
+            }
+
+            items.Add(new SearchResultItem(
+                ReadString(result, "title"),
+                url,
+                ReadString(result, "publish_date"),
+                null,
+                null,
+                ReadStrings(result, "excerpts")));
         }
 
-        var url = ReadString(result, "url");
-        if (url is null)
-        {
-            return string.Empty;
-        }
-
-        var lines = new List<string>
-        {
-            "Title: " + (ReadString(result, "title") ?? "N/A"),
-            "URL: " + url,
-            "Published: " + (ReadString(result, "publish_date") ?? "N/A")
-        };
-        var excerpts = ReadStrings(result, "excerpts");
-        if (excerpts.Count > 0)
-        {
-            lines.Add("Highlights:");
-            lines.Add(string.Join("\n\n", excerpts));
-        }
-
-        return string.Join("\n", lines);
+        return items;
     }
 
     private static List<string> ReadWarnings(JsonElement root)

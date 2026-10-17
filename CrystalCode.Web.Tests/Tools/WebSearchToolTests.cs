@@ -3,6 +3,7 @@ using System.Text.Json;
 
 using Crystal.Tools;
 
+using CrystalCode.Web.Searching;
 using CrystalCode.Web.Tools;
 
 namespace CrystalCode.Web.Tests.Tools;
@@ -65,5 +66,22 @@ public sealed class WebSearchToolTests
 
         Assert.Equal(ToolResultStatus.Failure, output.Status);
         Assert.Equal("Parallel search failed with HTTP status 500.", output.Text);
+    }
+
+    [Fact]
+    public async Task ReturnsAFailureWhenTheProviderKeyIsMissing()
+    {
+        var handler = new FakeHttpMessageHandler();
+        using var http = new HttpClient(handler);
+        var environment = TestEnvironment.From(
+            (SearchArguments.ProviderVariable, "tavily"));
+        var tool = new WebSearchTool(http, environment);
+
+        var output = await tool.InvokeAsync(
+            new ToolCall("1", "websearch", """{"query":"crystal"}"""));
+
+        Assert.Equal(ToolResultStatus.Failure, output.Status);
+        Assert.Equal("Environment variable TAVILY_API_KEY is required for Tavily search.", output.Text);
+        Assert.Empty(handler.Requests);
     }
 }

@@ -167,6 +167,142 @@ public sealed class WebSearchClientTests
         Assert.Equal("abcdefghij\n[truncated to 10 characters]", text);
     }
 
+    [Fact]
+    public async Task PostsToTavilyWithABearerToken()
+    {
+        var handler = new FakeHttpMessageHandler().Respond(
+            """{"results":[{"title":"Example","url":"https://example.com","content":"hello"}]}""");
+        var environment = TestEnvironment.From(
+            (SearchArguments.ProviderVariable, "tavily"),
+            ("TAVILY_API_KEY", "secret"));
+
+        var text = await SearchAsync(
+            handler,
+            """{"query":"crystal","type":"deep","numResults":5}""",
+            environment);
+
+        var request = Assert.Single(handler.Requests);
+        Assert.Equal("https://api.tavily.com/search", request.Uri!.ToString());
+        Assert.Equal("application/json", request.Header("Accept"));
+        Assert.Equal("Bearer secret", request.Header("Authorization"));
+        Assert.Contains("\"search_depth\":\"advanced\"", request.Body, StringComparison.Ordinal);
+        Assert.Contains("\"max_results\":5", request.Body, StringComparison.Ordinal);
+        Assert.Equal(
+            """
+            Title: Example
+            URL: https://example.com
+            Published: N/A
+            Highlights:
+            hello
+            """,
+            text);
+    }
+
+    [Fact]
+    public async Task PostsToBochaWithABearerToken()
+    {
+        var handler = new FakeHttpMessageHandler().Respond(
+            """
+            {"code":200,"data":{"webPages":{"value":[
+              {"name":"Example","url":"https://example.com","summary":"hello","siteName":"Example"}
+            ]}}}
+            """);
+        var environment = TestEnvironment.From(
+            (SearchArguments.ProviderVariable, "bocha"),
+            ("BOCHA_API_KEY", "secret"));
+
+        var text = await SearchAsync(handler, """{"query":"crystal"}""", environment);
+
+        var request = Assert.Single(handler.Requests);
+        Assert.Equal("https://api.bocha.cn/v1/web-search", request.Uri!.ToString());
+        Assert.Equal("Bearer secret", request.Header("Authorization"));
+        Assert.Contains("\"count\":8", request.Body, StringComparison.Ordinal);
+        Assert.Contains("\"summary\":true", request.Body, StringComparison.Ordinal);
+        Assert.Equal(
+            """
+            Title: Example
+            URL: https://example.com
+            Published: N/A
+            Site: Example
+            Highlights:
+            hello
+            """,
+            text);
+    }
+
+    [Fact]
+    public async Task PostsToPerplexityWithABearerToken()
+    {
+        var handler = new FakeHttpMessageHandler().Respond(
+            """{"results":[{"title":"Example","url":"https://example.com","snippet":"hello"}],"id":"x"}""");
+        var environment = TestEnvironment.From(
+            (SearchArguments.ProviderVariable, "perplexity"),
+            ("PERPLEXITY_API_KEY", "secret"));
+
+        var text = await SearchAsync(handler, """{"query":"crystal","type":"fast"}""", environment);
+
+        var request = Assert.Single(handler.Requests);
+        Assert.Equal("https://api.perplexity.ai/search", request.Uri!.ToString());
+        Assert.Equal("Bearer secret", request.Header("Authorization"));
+        Assert.Contains("\"search_type\":\"fast\"", request.Body, StringComparison.Ordinal);
+        Assert.Equal(
+            """
+            Title: Example
+            URL: https://example.com
+            Published: N/A
+            Highlights:
+            hello
+            """,
+            text);
+    }
+
+    [Fact]
+    public async Task PostsToJinaWithABearerToken()
+    {
+        var handler = new FakeHttpMessageHandler().Respond(
+            """
+            {"result":{"content":[{"type":"text","text":"title: Example\nurl: https://example.com"}]}}
+            """);
+        var environment = TestEnvironment.From(
+            (SearchArguments.ProviderVariable, "jina"),
+            ("JINA_API_KEY", "secret"));
+
+        var text = await SearchAsync(handler, """{"query":"crystal"}""", environment);
+
+        var request = Assert.Single(handler.Requests);
+        Assert.Equal("https://mcp.jina.ai/v1", request.Uri!.ToString());
+        Assert.Equal("application/json, text/event-stream", request.Header("Accept"));
+        Assert.Equal("Bearer secret", request.Header("Authorization"));
+        Assert.Contains("\"name\":\"search_web\"", request.Body, StringComparison.Ordinal);
+        Assert.Equal("title: Example\nurl: https://example.com", text);
+    }
+
+    [Fact]
+    public async Task PostsToFirecrawlWithABearerToken()
+    {
+        var handler = new FakeHttpMessageHandler().Respond(
+            """{"success":true,"data":{"web":[{"title":"Example","url":"https://example.com","description":"hello"}]}}""");
+        var environment = TestEnvironment.From(
+            (SearchArguments.ProviderVariable, "firecrawl"),
+            ("FIRECRAWL_API_KEY", "secret"));
+
+        var text = await SearchAsync(handler, """{"query":"crystal"}""", environment);
+
+        var request = Assert.Single(handler.Requests);
+        Assert.Equal("https://api.firecrawl.dev/v2/search", request.Uri!.ToString());
+        Assert.Equal("Bearer secret", request.Header("Authorization"));
+        Assert.Contains("\"sources\":[\"web\"]", request.Body, StringComparison.Ordinal);
+        Assert.Equal(
+            """
+            Title: Example
+            URL: https://example.com
+            Published: N/A
+            Highlights:
+            hello
+            """,
+            text);
+    }
+
     private static async Task<string> SearchAsync(
         FakeHttpMessageHandler handler,
         string argumentsJson,

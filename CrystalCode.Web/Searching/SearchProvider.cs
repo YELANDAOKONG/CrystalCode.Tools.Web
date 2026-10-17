@@ -1,10 +1,15 @@
 namespace CrystalCode.Web.Searching;
 
 /// <summary>
-/// Selects the hosted MCP search backend.
+/// Selects the search backend.
 /// </summary>
 internal enum SearchProvider
 {
     Parallel,
-    Exa
+    Exa,
+    Tavily,
+    Bocha,
+    Perplexity,
+    Jina,
+    Firecrawl
 }

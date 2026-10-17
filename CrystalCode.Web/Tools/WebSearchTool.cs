@@ -24,34 +24,34 @@ public sealed class WebSearchTool : ITool
               "minimum": 1,
               "maximum": 20,
               "default": 8,
-              "description": "Number of search results to return (1-20, default 8; the Exa backend honors it)."
+              "description": "Number of search results to return (1-20, default 8; providers may return fewer)."
             },
             "contextMaxCharacters": {
               "type": "integer",
               "minimum": 1,
               "maximum": 50000,
               "default": 10000,
-              "description": "Maximum characters of context the search engine returns (1-50000, default 10000; the Exa backend honors it)."
+              "description": "Maximum characters of context the search engine returns (1-50000, default 10000; currently honored by the Exa backend)."
             },
             "type": {
               "type": "string",
               "enum": ["auto", "fast", "deep"],
               "default": "auto",
-              "description": "Search effort for the Exa backend: 'auto' is balanced, 'fast' is quicker, 'deep' is more thorough."
+              "description": "Search effort: 'auto' is balanced, 'fast' is quicker, 'deep' is more thorough. Honored by Exa, Tavily, and Perplexity; other providers ignore it."
             },
             "livecrawl": {
               "type": "string",
               "enum": ["fallback", "preferred"],
               "default": "fallback",
-              "description": "Exa live crawl preference: 'fallback' uses live crawling as backup, 'preferred' prioritizes it."
+              "description": "Exa live crawl preference: 'fallback' uses live crawling as backup, 'preferred' prioritizes it. Other providers ignore it."
             },
             "session_id": {
               "type": "string",
-              "description": "Stable conversation id reused across related Parallel calls; optional."
+              "description": "Stable conversation id reused across related Parallel calls; optional. Other providers ignore it."
             },
             "model_name": {
               "type": "string",
-              "description": "Exact model identifier for Parallel product analytics only; optional."
+              "description": "Exact model identifier for Parallel product analytics only; optional. Other providers ignore it."
             },
             "maxCharacters": {
               "type": "integer",
@@ -120,6 +120,6 @@ public sealed class WebSearchTool : ITool
         return new ToolDefinition(
             "websearch",
             document.RootElement.Clone(),
-            "Search the live web through the Parallel or Exa hosted MCP backend selected by the operator (Parallel by default). Use this for current information and discovery. numResults, contextMaxCharacters, and maxCharacters control how much information comes back.");
+            "Search the live web through the provider selected by the operator (Parallel by default). Supported providers are Parallel, Exa, Tavily, Bocha, Perplexity, Jina, and Firecrawl; keyed providers fail fast when their key is not configured. Use this for current information and discovery. numResults, contextMaxCharacters, and maxCharacters control how much information comes back.");
     }
 }

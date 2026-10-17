@@ -88,4 +88,102 @@ public sealed class SearchRequestBodyTests
         Assert.False(arguments.TryGetProperty("session_id", out _));
         Assert.False(arguments.TryGetProperty("model_name", out _));
     }
+
+    [Fact]
+    public void BuildsAJinaRequest()
+    {
+        using var document = JsonDocument.Parse(SearchRequestBody.Build(Request(SearchProvider.Jina)));
+        var parameters = document.RootElement.GetProperty("params");
+        var arguments = parameters.GetProperty("arguments");
+
+        Assert.Equal("tools/call", document.RootElement.GetProperty("method").GetString());
+        Assert.Equal("search_web", parameters.GetProperty("name").GetString());
+        Assert.Equal("crystal code", arguments.GetProperty("query").GetString());
+        Assert.Equal(5, arguments.GetProperty("num").GetInt32());
+    }
+
+    [Fact]
+    public void ClampsJinaResultCount()
+    {
+        using var document = JsonDocument.Parse(
+            SearchRequestBody.Build(Request(SearchProvider.Jina, numResults: 20)));
+        var arguments = document.RootElement
+            .GetProperty("params")
+            .GetProperty("arguments");
+
+        Assert.Equal(10, arguments.GetProperty("num").GetInt32());
+    }
+
+    [Fact]
+    public void BuildsATavilyRequest()
+    {
+        using var document = JsonDocument.Parse(
+            SearchRequestBody.Build(Request(SearchProvider.Tavily, type: "deep")));
+        var root = document.RootElement;
+
+        Assert.False(root.TryGetProperty("jsonrpc", out _));
+        Assert.Equal("crystal code", root.GetProperty("query").GetString());
+        Assert.Equal(5, root.GetProperty("max_results").GetInt32());
+        Assert.Equal("advanced", root.GetProperty("search_depth").GetString());
+        Assert.False(root.GetProperty("include_answer").GetBoolean());
+        Assert.True(root.GetProperty("include_published_date").GetBoolean());
+    }
+
+    [Fact]
+    public void BuildsABochaRequest()
+    {
+        using var document = JsonDocument.Parse(
+            SearchRequestBody.Build(Request(SearchProvider.Bocha)));
+        var root = document.RootElement;
+
+        Assert.False(root.TryGetProperty("jsonrpc", out _));
+        Assert.Equal("crystal code", root.GetProperty("query").GetString());
+        Assert.Equal(5, root.GetProperty("count").GetInt32());
+        Assert.True(root.GetProperty("summary").GetBoolean());
+        Assert.Equal("noLimit", root.GetProperty("freshness").GetString());
+    }
+
+    [Fact]
+    public void BuildsAPerplexityRequest()
+    {
+        using var document = JsonDocument.Parse(
+            SearchRequestBody.Build(Request(SearchProvider.Perplexity, type: "fast")));
+        var root = document.RootElement;
+
+        Assert.False(root.TryGetProperty("jsonrpc", out _));
+        Assert.Equal("crystal code", root.GetProperty("query").GetString());
+        Assert.Equal(5, root.GetProperty("max_results").GetInt32());
+        Assert.Equal("fast", root.GetProperty("search_type").GetString());
+    }
+
+    [Fact]
+    public void BuildsAFirecrawlRequest()
+    {
+        using var document = JsonDocument.Parse(
+            SearchRequestBody.Build(Request(SearchProvider.Firecrawl)));
+        var root = document.RootElement;
+
+        Assert.False(root.TryGetProperty("jsonrpc", out _));
+        Assert.Equal("crystal code", root.GetProperty("query").GetString());
+        Assert.Equal(5, root.GetProperty("limit").GetInt32());
+        Assert.Equal(
+            ["web"],
+            root.GetProperty("sources").EnumerateArray().Select(item => item.GetString()));
+        Assert.True(root.GetProperty("highlights").GetBoolean());
+    }
+
+    private static SearchRequest Request(
+        SearchProvider provider,
+        int numResults = 5,
+        string type = "auto") =>
+        new(
+            "crystal code",
+            provider,
+            numResults,
+            1234,
+            type,
+            "fallback",
+            null,
+            null,
+            null);
 }
